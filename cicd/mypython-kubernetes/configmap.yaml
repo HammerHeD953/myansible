@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mypython3
+data:
+  # file-like keys
+  game.json: |
+    {"testxxxasdasdasd":"asdasd","oloxlo":"olxoxl"}   
+  1123.json : | 
+    {"testxxx":"asdasd"}     
+  artem.json : | 
+    {"testxxx":"asdasd"}     
+  oleg.json : | 
+    {"testxxxasdasdasd":"asdasd"}     
+  vasy.json : | 
+    {"testxxxasdasdasd":"asdasd","oloxlo":"olxoxl"}     

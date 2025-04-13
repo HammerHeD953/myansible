@@ -1,0 +1,37 @@
+- hosts: k8snodes
+  become_user: root
+  become: true
+  any_errors_fatal: true
+  vars:
+       myvars: test
+  roles:
+    - role: ansible-role-node_exporter
+      node_exporter_version: 1.7.0
+      node_exporter_collectors_enabled: conntrack,cpu,diskstats,entropy,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,stat,textfile,time,vmstat
+      node_exporter_port: 9100
+      node_exporter_logrotate_enabled: true
+  tasks:
+    - name: Print ansible_facts
+      debug: msg="{{ ansible_facts }}"
+      
+    - name: Install a list of packages
+      apt:
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - htop
+        - nload
+        - net-tools
+
+    - name: save all facts to host specific file
+      copy:
+        content: "{{ ansible_facts }}"
+        dest: "{{ ansible_fqdn }}.json"
+      delegate_to: localhost
+
+    # - name: extend part on ubuntu
+    #   become: true
+    #   shell: "sudo lvextend -L +10g /dev/mapper/ubuntu--vg-ubuntu--lv"
+    # - name: resize part on ubuntu
+    #   become: true
+    #   shell: "sudo resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv"

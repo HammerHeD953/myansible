@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mypython3
+  labels:
+    xxx: xxxxxasd
+    app: mypython3

@@ -1,0 +1,5 @@
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook mytasks.yaml -i ../inventory/nix.ini -l k8snodes --private-key ~/.ssh/id_rsa -v
+
+
+root
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook mytasks.yaml -i ../inventory/nix.ini -l k8snodes --private-key /home/zero/.ssh/id_rsa -v

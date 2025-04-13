@@ -1,0 +1,46 @@
+---
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: "{{ APP_PATH }}"
+    state: directory
+    mode: '0755'
+
+- name: Copy the node_exporter systemd unit file.
+  template:
+    src: Dockerfile.j2
+    dest: "{{ APP_PATH }}/Dockerfile"
+    mode: 0644
+
+- name: Copy the node_exporter systemd unit file.
+  template:
+    src: index.php.j2
+    dest: "{{ APP_PATH }}/index.php"
+    mode: 0644
+
+- name: Copy the node_exporter systemd unit file.
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ APP_PATH }}/docker-compose.yml"
+    mode: 0644
+
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: "{{ APP_PATH }}/nginx/conf.d/"
+    state: directory
+    mode: '0755'
+
+- name: Copy the node_exporter systemd unit file.
+  template:
+    src: nginx.conf.j2
+    dest: "{{ APP_PATH }}/nginx/conf.d/default.conf"
+    mode: 0644
+  register: nginx
+    
+
+- name: Create and start services
+  community.docker.docker_compose:
+      project_src: "{{ APP_PATH }}"
+  # register: output 
+- name: restart nginx 
+  shell: docker restart php-nginx 
+  when: nginx is changed 

@@ -1,0 +1,5 @@
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook mytasks.yaml -i ../inventory/nix.ini -l mytest --private-key ~/.ssh/id_rsa -v
+
+
+root
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook mytasks.yaml -i ../inventory/nix.ini -l mytest --private-key /home/zero/.ssh/id_rsa -v

@@ -1,0 +1,14 @@
+- hosts: mytest
+  become_user: root
+  become: true
+  any_errors_fatal: true
+  vars:
+       myvars: test
+  roles:
+    - role: my_app
+      APP_PATH: /etc/app2
+
+  tasks:
+    # - name: Print ansible_facts
+    #   debug: msg="{{ ansible_facts }}"
+      

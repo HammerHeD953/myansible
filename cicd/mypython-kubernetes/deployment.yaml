@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mypython3-deployment
+  labels:
+    xxx: xxxxxasd
+    app: mypython3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mypython3
+  template:
+    metadata:
+      labels:
+        app: mypython3
+        studa: xxx
+    spec:
+      containers:
+        - name: mypython3
+          volumeMounts:
+            - name: config
+              mountPath: "/app/pythonsrc/json"
+              readOnly: true
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "1000m"
+          image: avoevoda/mypython3:latestv4
+          # Just spin & wait forever
+          # command: [ "/bin/bash", "-c", "--" ]
+          # args: [ "while true; do sleep 30; done;" ]
+          ports:
+            - containerPort: 5000
+          livenessProbe:
+            httpGet:
+              path: /test
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /test
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          startupProbe:
+            httpGet:
+              path: /test
+              port: 5000
+            failureThreshold: 3
+            periodSeconds: 10
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            # - name: PLAYER_INITIAL_LIVES # Notice that the case is different here
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: mypython3 # The ConfigMap this value comes from.
+            #       key: player_initial_lives # The key to fetch.
+            # - name: UI_PROPERTIES_FILE_NAME
+            #   valueFrom:
+            #     configMapKeyRef:
+            #       name: helloworld
+            #       key: ui_properties_file_name
+      volumes:
+        # You set volumes at the Pod level, then mount them into containers inside that Pod
+        - name: config
+          configMap:
+            # Provide the name of the ConfigMap you want to mount.
+            name: mypython3
+            # An array of keys from the ConfigMap to create as files
+            items:
+              - key: "game.json"
+                path: "game.json"
+              - key: "1123.json"
+                path: "1123.json"

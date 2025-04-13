@@ -1,0 +1,32 @@
+{
+    "data": {
+      "hello_world_service_port": "tcp://10.233.2.225:443",
+      "hello_world_service_port_443_tcp": "tcp://10.233.2.225:443",
+      "hello_world_service_port_443_tcp_addr": "10.233.2.225",
+      "hello_world_service_port_443_tcp_port": "443",
+      "hello_world_service_port_443_tcp_proto": "tcp",
+      "hello_world_service_service_host": "10.233.2.225",
+      "hello_world_service_service_port": "443",
+      "hello_world_service_service_port_https": "443",
+      "home": "/root",
+      "hostname": "hello-world-deployment-ccfbd5f9-nqkd4",
+      "kubernetes_port": "tcp://10.233.0.1:443",
+      "kubernetes_port_443_tcp": "tcp://10.233.0.1:443",
+      "kubernetes_port_443_tcp_addr": "10.233.0.1",
+      "kubernetes_port_443_tcp_port": "443",
+      "kubernetes_port_443_tcp_proto": "tcp",
+      "kubernetes_service_host": "10.233.0.1",
+      "kubernetes_service_port": "443",
+      "kubernetes_service_port_https": "443",
+      "node_version": "18.6.0",
+      "path": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "player_initial_lives": "3",
+      "pod_name": "hello-world-deployment-ccfbd5f9-nqkd4",
+      "pod_namespace": "stage1",
+      "pwd": "/usr/src/app",
+      "ui_properties_file_name": "user-interface.properties",
+      "version": "69f7b148",
+      "yarn_version": "1.22.19",
+      "studaartem": "xxxxabna"
+    }
+  }
