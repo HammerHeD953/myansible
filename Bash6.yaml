@@ -1,0 +1,1 @@
+kubectl  run -it --rm --image=nicolaka/netshoot:v0.11 bash6
