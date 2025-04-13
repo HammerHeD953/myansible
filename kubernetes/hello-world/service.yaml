@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: hello-world-service
+  labels:
+    app: hello-world
+
+spec:
+  ports:
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 3000
+      # externalIP: 192.168.88.1
+  selector:
+    app: hello-world
+  type: ClusterIP

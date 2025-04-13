@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myservice-deployment
+  labels:
+    xxx: xxxxxasd
+    app: myservice
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: myservice
+  template:
+    metadata:
+      labels:
+        app: myservice
+        study: xxx
+        ifif: xyi
+        xxx: aaa
+    spec:
+      containers:
+        - name: myservice
+          volumeMounts:
+            - name: config
+              mountPath: "/config"
+              readOnly: true
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "1000m"
+          image: cloudkats/hello-world-rest:latest
+          ports:
+            - containerPort: 3000
+          livenessProbe:
+            httpGet:
+              path: /env
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /env
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          startupProbe:
+            httpGet:
+              path: /status
+              port: 3000
+            failureThreshold: 3
+            periodSeconds: 10
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: myservice
+              value: xxxxabna
+            - name: PLAYER_INITIAL_LIVES # Notice that the case is different here
+              valueFrom:
+                configMapKeyRef:
+                  name: myservice1 # The ConfigMap this value comes from.
+                  key: player_initial_lives # The key to fetch.
+            - name: UI_PROPERTIES_FILE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: myservice1
+                  key: ui_properties_file_name
+      volumes:
+        # You set volumes at the Pod level, then mount them into containers inside that Pod
+        - name: config
+          configMap:
+            # Provide the name of the ConfigMap you want to mount.
+            name: myservice1
+            # An array of keys from the ConfigMap to create as files
+            items:
+              - key: "game.properties"
+                path: "game.properties"
+              - key: "user-interface.properties"
+                path: "user-interface.properties"

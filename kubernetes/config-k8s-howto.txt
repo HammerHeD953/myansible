@@ -1,0 +1,13 @@
+helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
+
+kubectl edit svc kubernetes-dashboard -n kubernetes-dashboard -> nodeport
+
+https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md
+
+kubectl taint nodes k8s-master1 node-role.kubernetes.io/master=:NoSchedule
+kubectl taint nodes k8s-master2 node-role.kubernetes.io/master=:NoSchedule
+kubectl taint nodes k8s-master3 node-role.kubernetes.io/master=:NoSchedule
+
+kubectl create deployment multitool --image=praqma/network-multitool
+
+/etc/kubernetes/admin.conf -> kubectl cfg ~/.kube/config
