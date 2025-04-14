@@ -1,0 +1,165 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: my-app
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+    # Добавил антиафинити, что бы поды селились на разных зонах.
+    # https://www.verygoodsecurity.com/blog/posts/kubernetes-multi-az-deployments-using-pod-anti-affinity
+      affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - my-app
+              topologyKey: failure-domain.beta.kubernetes.io/zone
+      containers:
+      - image: nginx:1.12
+        name: nginx
+        # Добавил ресурсы, сделал лимит 1000, что бы приложение могло подняться.
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "1000m"
+        ports:
+        - containerPort: 80
+        # Добавил пробы для старта приложения с задержкой.
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        startupProbe:
+          httpGet:
+            path: /
+            port: 80
+          failureThreshold: 3
+          periodSeconds: 10
+---
+# Добавил HPA по 50% CPU
+# https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-deployment
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-deployment
+  minReplicas: 1
+  maxReplicas: 4
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+---
+# Добавил КронДжобу, что бы изменить минимальное количество реплик.
+# https://stackoverflow.com/questions/66211456/time-based-scaling-with-kubernetes-cronjob-how-to-avoid-deployments-overriding
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: my-deployment-scale-up
+spec:
+  schedule: "12 12 * * *"
+  successfulJobsHistoryLimit: 0 # Remove after successful completion
+  failedJobsHistoryLimit: 1 # Retain failed so that we see it
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: sa-cron-runner
+          containers:
+          - name: my-deployment-scale-up-job
+            image: bitnami/kubectl:latest
+            command:
+            - /bin/sh
+            - -c
+            - kubectl patch hpa my-deployment --patch '{"spec":{"minReplicas":4}}'
+          restartPolicy: OnFailure
+---
+# Добавил 2-ую КронДжобу, для скейла вниз.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: my-deployment-scale-down
+spec:
+  schedule: "00 19 * * *"
+  successfulJobsHistoryLimit: 0 # Remove after successful completion
+  failedJobsHistoryLimit: 1 # Retain failed so that we see it
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: sa-cron-runner
+          containers:
+          - name: my-deployment-scale-down-job
+            image: bitnami/kubectl:latest
+            command:
+            - /bin/sh
+            - -c
+            - kubectl patch hpa my-deployment --patch '{"spec":{"minReplicas":1}}'
+          restartPolicy: OnFailure
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cron-runner
+  namespace: default
+rules:
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["patch", "get"]
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: cron-runner
+subjects:
+- kind: ServiceAccount
+  name: sa-cron-runner
+  namespace: default
+roleRef:
+  kind: Role
+  name: cron-runner
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-cron-runner
+  namespace: default
