@@ -23,5 +23,24 @@ spec:
         name: nginx
         ports:
         - containerPort: 80
+        # Добавил пробы для старта приложения с задержкой.
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        startupProbe:
+          httpGet:
+            path: /
+            port: 80
+          failureThreshold: 3
+          periodSeconds: 10 
 
 ...
