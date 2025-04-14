@@ -77,7 +77,7 @@ spec:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: my-deployment
+  name: my-deployment-scale-up
 spec:
   schedule: "12 12 * * *"
   successfulJobsHistoryLimit: 0 # Remove after successful completion
@@ -95,6 +95,30 @@ spec:
             - /bin/sh
             - -c
             - kubectl patch hpa my-deployment --patch '{"spec":{"minReplicas":4}}'
+          restartPolicy: OnFailure
+---
+# Добавил 2-ую КронДжобу, для скейла вниз.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: my-deployment-scale-down
+spec:
+  schedule: "00 19 * * *"
+  successfulJobsHistoryLimit: 0 # Remove after successful completion
+  failedJobsHistoryLimit: 1 # Retain failed so that we see it
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: sa-cron-runner
+          containers:
+          - name: my-deployment-scale-down-job
+            image: bitnami/kubectl:latest
+            command:
+            - /bin/sh
+            - -c
+            - kubectl patch hpa my-deployment --patch '{"spec":{"minReplicas":1}}'
           restartPolicy: OnFailure
 ---
 kind: Role
