@@ -18,6 +18,18 @@ spec:
       labels:
         app: my-app
     spec:
+    # Добавил антиафинити, что бы поды селились на разных зонах.
+    # https://www.verygoodsecurity.com/blog/posts/kubernetes-multi-az-deployments-using-pod-anti-affinity
+      affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - my-app
+              topologyKey: failure-domain.beta.kubernetes.io/zone
       containers:
       - image: nginx:1.12
         name: nginx
