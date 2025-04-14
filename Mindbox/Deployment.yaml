@@ -21,6 +21,14 @@ spec:
       containers:
       - image: nginx:1.12
         name: nginx
+        # Добавил ресурсы, сделал лимит 1000, что бы приложение могло подняться.
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "1000m"
         ports:
         - containerPort: 80
         # Добавил пробы для старта приложения с задержкой.
